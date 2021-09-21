@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -55,12 +57,12 @@ class TestRoomController {
 		mockMvc.perform(get("/rooms")).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$", hasSize(2)))
 				.andDo(document("rooms",
-						responseFields(fieldWithPath("[].id").description("The room's Id"),
-								fieldWithPath("[].roomNumber").description("The roomNumber"),
-								fieldWithPath("[].weekdayPrice").description("The weekdayPrice"),
-								fieldWithPath("[].weekendPrice").description("The weekendPrice"),
-								fieldWithPath("[].roomType").description("The roomType"),
-								fieldWithPath("[].floor").description("The floor"))));
+						responseFields(fieldWithPath("[].id").description("The room's Id: "),
+								fieldWithPath("[].roomNumber").description("The RoomNumber: "),
+								fieldWithPath("[].weekdayPrice").description("The Weekday Price: "),
+								fieldWithPath("[].weekendPrice").description("The Weekend Price: "),
+								fieldWithPath("[].roomType").description("The Room type: "),
+								fieldWithPath("[].floor").description("The Room Floor: "))));
 	}
 
 	@Test
@@ -163,12 +165,8 @@ class TestRoomController {
 	@Test
 	@DisplayName("GET /search/byRoomNumber")
 	void testFindRoomByRoomNumber() throws Exception {
-		// LinkedMultiValueMap<String, String> requestParams = new
-		// LinkedMultiValueMap<>();
-		// requestParams.add("roomNumber", "202");
-
+	
 		Room room = new Room(1L, "202", 102.00, 135.00, "double", "2");
-		// doReturn(Optional.of(room)).when(service).findByRoomNumber("202");
 		when(service.findByRoomNumber("202")).thenReturn(Optional.of(room));
 
 		// Execute the GET request
@@ -178,7 +176,15 @@ class TestRoomController {
 
 				// Validate the returned fields
 				.andExpect(jsonPath("$.id", is(1))).andExpect(jsonPath("$.roomNumber", is("202")))
-				.andExpect(jsonPath("$.roomType", is("double"))).andExpect(jsonPath("$.floor", is("2")));
+				.andExpect(jsonPath("$.roomType", is("double"))).andExpect(jsonPath("$.floor", is("2")))
+				.andDo(document("room-search-by-roomNumber",
+						requestParameters(parameterWithName("roomNumber").description("The roomNumber as request param: ")),
+						responseFields(fieldWithPath("id").description("The room's Id: "),
+								fieldWithPath("roomNumber").description("The RoomNumber: "),
+								fieldWithPath("weekdayPrice").description("The Weekday Price: "),
+								fieldWithPath("weekendPrice").description("The Weekend Price: "),
+								fieldWithPath("roomType").description("The Room type: "),
+								fieldWithPath("floor").description("The Room Floor: "))));
 	}
 
 }
